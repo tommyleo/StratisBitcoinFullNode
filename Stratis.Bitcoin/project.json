@@ -1,5 +1,7 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.1.1-alpha",
+  "title": "Stratis.Bitcoin",
+  "description": "Stratis Bitcoin FullNode",
 
   "dependencies": {
     "System.Reactive": "3.1.1",
@@ -14,7 +16,7 @@
     "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
     "Microsoft.Extensions.Logging.Console": "1.1.0",
     "Microsoft.Extensions.Logging.Filter": "1.1.0",
-    "NBitcoin": "3.0.2.5",
+    "NBitcoin": "3.0.2.10",
     "System.Xml.XmlSerializer": "4.3.0",
     "Microsoft.Extensions.Caching.Memory": "1.1.0",
     "Microsoft.Extensions.DependencyInjection": "1.1.0"
@@ -22,10 +24,10 @@
 
   "frameworks": {
     "netstandard1.6": {
-        "dependencies": {
-        },
-        "buildOptions": { "define": [ "NETCORE" ] },
-        "imports": [ "netcore50" ]
+      "dependencies": {
+      },
+      "buildOptions": { "define": [ "NETCORE" ] },
+      "imports": [ "netcore50" ]
     }
   }
 }
