@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Stratis.Bitcoin.BlockStore;
 using Stratis.Bitcoin.MemoryPool;
 
 namespace Stratis.BitcoinD
@@ -18,10 +19,11 @@ namespace Stratis.BitcoinD
 		public static void Main(string[] args)
 		{
 			Logs.Configure(new LoggerFactory().AddConsole(LogLevel.Trace, false));
-			NodeArgs nodeArgs = NodeArgs.GetArgs(args);
+			NodeSettings nodeSettings = NodeSettings.FromArguments(args);
 
 			var node = (FullNode) new FullNodeBuilder()
-				.UseNodeArgs(nodeArgs)
+				.UseNodeSettings(nodeSettings)
+				.UseBlockStore()
 				.UseMempool()
 				.Build();
 

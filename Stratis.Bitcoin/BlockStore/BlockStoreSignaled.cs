@@ -15,15 +15,15 @@ namespace Stratis.Bitcoin.BlockStore
 	{
 		private readonly BlockStoreLoop storeLoop;
 		private readonly ConcurrentChain chain;
-		private readonly NodeArgs nodeArgs;
+		private readonly NodeSettings nodeArgs;
 		private readonly ChainBehavior.ChainState chainState;
 		private readonly ConnectionManager connection;
 
 		private readonly ConcurrentDictionary<uint256, uint256> blockHashesToAnnounce; // maybe replace with a task scheduler
 
 
-		public BlockStoreSignaled(BlockStoreLoop storeLoop, ConcurrentChain chain, NodeArgs nodeArgs, 
-			BlockStore.ChainBehavior.ChainState chainState, ConnectionManager connection, CancellationTokenSource globalCancellationTokenSource)
+		public BlockStoreSignaled(BlockStoreLoop storeLoop, ConcurrentChain chain, NodeSettings nodeArgs, 
+			BlockStore.ChainBehavior.ChainState chainState, ConnectionManager connection)
 		{
 			this.storeLoop = storeLoop;
 			this.chain = chain;
@@ -32,7 +32,6 @@ namespace Stratis.Bitcoin.BlockStore
 			this.connection = connection;
 
 			this.blockHashesToAnnounce = new ConcurrentDictionary<uint256, uint256>();
-			this.RelayWorker(globalCancellationTokenSource.Token);
 		}
 
 		protected override void OnNextCore(Block value)
@@ -49,7 +48,7 @@ namespace Stratis.Bitcoin.BlockStore
 			this.blockHashesToAnnounce.TryAdd(value.GetHash(), value.GetHash());
 		}
 
-		private void RelayWorker(CancellationToken cancellationToken)
+		public void RelayWorker(CancellationToken cancellationToken)
 		{
             AsyncLoop.Run("BlockStore.RelayWorker", async token =>
 			{

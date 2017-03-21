@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Stratis.Bitcoin.BlockStore;
 using Stratis.Bitcoin.Builder;
 using Stratis.Bitcoin.Consensus;
 using Stratis.Bitcoin.MemoryPool;
@@ -53,7 +54,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 
 		public void Start(string dataDir)
 		{
-			var args = NodeArgs.GetArgs(new string[] {"-conf=bitcoin.conf", "-datadir=" + dataDir});
+			var args = NodeSettings.FromArguments(new string[] {"-conf=bitcoin.conf", "-datadir=" + dataDir});
 
 			var node = BuildFullNode(args);
 
@@ -61,10 +62,11 @@ namespace Stratis.Bitcoin.IntegrationTests
 			FullNode.Start();
 		}
 
-		public static FullNode BuildFullNode(NodeArgs args)
+		public static FullNode BuildFullNode(NodeSettings args)
 		{
 			var node = (FullNode)new FullNodeBuilder()
-				.UseNodeArgs(args)
+				.UseNodeSettings(args)
+				.UseBlockStore()
 				.UseMempool()
 				.Build();
 
@@ -705,7 +707,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 				{
 					var newChain = new ChainedBlock(block.Header, block.GetHash(), fullNode.Chain.Tip);
 					var oldTip = fullNode.Chain.SetTip(newChain);
-					fullNode.ConsensusLoop.LookaheadBlockPuller.PushBlock(block.GetSerializedSize(), block, CancellationToken.None);
+					fullNode.ConsensusLoop.Puller.PushBlock(block.GetSerializedSize(), block, CancellationToken.None);
 
 					//try
 					//{
