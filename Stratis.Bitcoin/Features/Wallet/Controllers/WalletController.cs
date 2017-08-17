@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using NBitcoin;
+using Stratis.Bitcoin.Configuration;
+using Stratis.Bitcoin.Connection;
+using Stratis.Bitcoin.Features.Wallet.Helpers;
+using Stratis.Bitcoin.Features.Wallet.Models;
+using Stratis.Bitcoin.Utilities;
+using Stratis.Bitcoin.Utilities.JsonErrors;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
-using Microsoft.AspNetCore.Mvc;
-using NBitcoin;
-using Stratis.Bitcoin.Configuration;
-using Stratis.Bitcoin.Connection;
-using Stratis.Bitcoin.Features.Wallet.Models;
-using Stratis.Bitcoin.Utilities;
-using Stratis.Bitcoin.Features.Wallet.Helpers;
-using Stratis.Bitcoin.Utilities.JsonErrors;
 
 namespace Stratis.Bitcoin.Features.Wallet.Controllers
 {
@@ -22,6 +22,8 @@ namespace Stratis.Bitcoin.Features.Wallet.Controllers
     public class WalletController : Controller
     {
         private readonly IWalletManager walletManager;
+
+        private readonly IWalletTransactionHandler walletTransactionHandler;
 
         private readonly IWalletSyncManager walletSyncManager;
 
@@ -35,10 +37,11 @@ namespace Stratis.Bitcoin.Features.Wallet.Controllers
 
         private readonly DataFolder dataFolder;
 
-        public WalletController(IWalletManager walletManager, IWalletSyncManager walletSyncManager, IConnectionManager connectionManager, Network network,
+        public WalletController(IWalletManager walletManager, IWalletTransactionHandler walletTransactionHandler, IWalletSyncManager walletSyncManager, IConnectionManager connectionManager, Network network,
             ConcurrentChain chain, DataFolder dataFolder)
         {
             this.walletManager = walletManager;
+            this.walletTransactionHandler = walletTransactionHandler;
             this.walletSyncManager = walletSyncManager;
             this.connectionManager = connectionManager;
             this.network = network;
@@ -405,6 +408,39 @@ namespace Stratis.Bitcoin.Features.Wallet.Controllers
         }
 
         /// <summary>
+        /// Gets the maximum spendable balance on an account, along with the fee required to spend it.
+        /// </summary>
+        /// <param name="request">The request parameters.</param>
+        /// <returns></returns>
+        [Route("maxbalance")]
+        [HttpGet]
+        public IActionResult GetMaximumSpendableBalance([FromQuery] WalletMaximumBalanceRequest request)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            // Checks the request is valid.
+            if (!this.ModelState.IsValid)
+            {
+                var errors = this.ModelState.Values.SelectMany(e => e.Errors.Select(m => m.ErrorMessage));
+                return ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, "Formatting error", string.Join(Environment.NewLine, errors));
+            }
+
+            try
+            {
+                var transactionResult = this.walletTransactionHandler.GetMaximumSpendableAmount(new WalletAccountReference(request.WalletName, request.AccountName), FeeParser.Parse(request.FeeType), request.AllowUnconfirmed);
+                return this.Json(new MaxSpendableAmountModel
+                {
+                    MaxSpendableAmount = transactionResult.maximumSpendableAmount,
+                    Fee = transactionResult.Fee
+                });
+            }
+            catch (Exception e)
+            {
+                return ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, e.Message, e.ToString());
+            }
+        }
+
+        /// <summary>
         /// Builds a transaction. 
         /// </summary>
         /// <param name="request">The transaction parameters.</param>
@@ -425,13 +461,24 @@ namespace Stratis.Bitcoin.Features.Wallet.Controllers
 
             try
             {
-                var transactionResult = this.walletManager.BuildTransaction(new WalletAccountReference(request.WalletName, request.AccountName), request.Password, destination, request.Amount, FeeParser.Parse(request.FeeType), request.AllowUnconfirmed ? 0 : 1);
+                var context = new TransactionBuildContext(
+                    new WalletAccountReference(request.WalletName, request.AccountName),
+                    new[] {new Recipient {Amount = request.Amount, ScriptPubKey = destination}}.ToList(),
+                    request.Password)
+                {
+                    FeeType = FeeParser.Parse(request.FeeType),
+                    MinConfirmations = request.AllowUnconfirmed ? 0 : 1
+                };
+
+                var transactionResult = this.walletTransactionHandler.BuildTransaction(context);
+
                 var model = new WalletBuildTransactionModel
                 {
-                    Hex = transactionResult.hex,
-                    Fee = transactionResult.fee,
-                    TransactionId = transactionResult.transactionId
+                    Hex = transactionResult.ToHex(),
+                    Fee = context.TransactionFee,
+                    TransactionId = transactionResult.GetHash()
                 };
+
                 return this.Json(model);
             }
             catch (Exception e)

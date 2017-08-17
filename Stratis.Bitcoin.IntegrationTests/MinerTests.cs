@@ -101,7 +101,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 			public ConsensusLoop consensus;
 			public DateTimeProvider date;
 			public TxMempool mempool;
-			public MempoolScheduler scheduler;
+			public MempoolAsyncLock scheduler;
 			public List<Transaction> txFirst;
 			public Money BLOCKSUBSIDY = 50 * Money.COIN;
 			public Money LOWFEE = Money.CENT;
@@ -126,7 +126,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 			    this.entry = new TestMemPoolEntryHelper();
 			    this.chain = new ConcurrentChain(network);
 			    this.network.Consensus.Options = new PowConsensusOptions();
-			    this.cachedCoinView = new CachedCoinView(new InMemoryCoinView(chain.Tip.HashBlock));
+                this.cachedCoinView = new CachedCoinView(new InMemoryCoinView(chain.Tip.HashBlock));
 			    this.consensus = new ConsensusLoop(new PowConsensusValidator(network), chain, cachedCoinView, new LookaheadBlockPuller(chain, new ConnectionManager(network, new NodeConnectionParameters(), new NodeSettings(), new LoggerFactory()), new LoggerFactory()), new NodeDeployments(this.network));
 			    this.consensus.Initialize();
 
@@ -137,7 +137,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 				date1.timeutc = DateTimeProvider.Default.GetUtcNow();
 				this.date = date1;
                 this.mempool = new TxMempool(new FeeRate(1000), DateTimeProvider.Default, new BlockPolicyEstimator(new FeeRate(1000), NodeSettings.Default(), new LoggerFactory()), new LoggerFactory()); ;
-                this.scheduler = new MempoolScheduler();
+                this.scheduler = new MempoolAsyncLock();
 
                 // Simple block creation, nothing special yet:
                 this.newBlock = AssemblerForTest(this).CreateNewBlock(this.scriptPubKey);
@@ -563,7 +563,7 @@ namespace Stratis.Bitcoin.IntegrationTests
 		}
 
 		//NOTE: These tests rely on CreateNewBlock doing its own self-validation!
-		public void MinerCreateNewBlockValidity()
+		private void MinerCreateNewBlockValidity()
 		{
 			//TODO: fix this test
 			// orphan in mempool, template creation fails

@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Stratis.Bitcoin.Builder;
 using Stratis.Bitcoin.Builder.Feature;
 using Stratis.Bitcoin.Features.RPC.Controllers;
 using Stratis.Bitcoin.Features.Wallet.Controllers;
 using Stratis.Bitcoin.Features.Wallet.Notifications;
+using System;
 
 namespace Stratis.Bitcoin.Features.Wallet
 {
@@ -27,8 +27,8 @@ namespace Stratis.Bitcoin.Features.Wallet
         public override void Start()
         {
             // subscribe to receiving blocks and transactions
-            this.blockSubscriberdDisposable = new BlockSubscriber(this.signals.Blocks, new BlockObserver(this.walletSyncManager)).Subscribe();
-            this.transactionSubscriberdDisposable = new TransactionSubscriber(this.signals.Transactions, new TransactionObserver(this.walletSyncManager)).Subscribe();
+            this.blockSubscriberdDisposable = this.signals.SubscribeForBlocks(new BlockObserver(this.walletSyncManager));
+            this.transactionSubscriberdDisposable = this.signals.SubscribeForTransactions(new TransactionObserver(this.walletSyncManager));
 
             this.walletManager.Initialize();
             this.walletSyncManager.Initialize();
@@ -57,6 +57,7 @@ namespace Stratis.Bitcoin.Features.Wallet
                 .FeatureServices(services =>
                     {
                         services.AddSingleton<IWalletSyncManager, WalletSyncManager>();
+                        services.AddSingleton<IWalletTransactionHandler, WalletTransactionHandler>();
                         services.AddSingleton<IWalletManager, WalletManager>();
                         services.AddSingleton<IWalletFeePolicy, WalletFeePolicy>();
                         services.AddSingleton<WalletController>();
