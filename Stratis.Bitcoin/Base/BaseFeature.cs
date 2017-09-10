@@ -8,12 +8,12 @@ using Stratis.Bitcoin.Builder.Feature;
 using Stratis.Bitcoin.Configuration;
 using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.Features.Consensus;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
 using Stratis.Bitcoin.Signals;
 using Stratis.Bitcoin.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Stratis.Bitcoin.Base.Deployments;
 
 namespace Stratis.Bitcoin.Base
 {

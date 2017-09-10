@@ -7,12 +7,12 @@ using Stratis.Bitcoin.Configuration;
 using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.Features.Consensus;
 using Stratis.Bitcoin.Features.Consensus.CoinViews;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
 using Stratis.Bitcoin.Features.MemoryPool.Fee;
 using Stratis.Bitcoin.Features.Miner;
 using Stratis.Bitcoin.Utilities;
 using System.Collections.Generic;
 using System.Linq;
+using Stratis.Bitcoin.Base.Deployments;
 
 namespace Stratis.Bitcoin.Features.MemoryPool.Tests
 {

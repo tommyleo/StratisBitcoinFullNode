@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NBitcoin;
 using NBitcoin.Crypto;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
 using Stratis.Bitcoin.Utilities;
 using Microsoft.Extensions.Logging;
+using Stratis.Bitcoin.Base.Deployments;
 
 namespace Stratis.Bitcoin.Features.Consensus
 {

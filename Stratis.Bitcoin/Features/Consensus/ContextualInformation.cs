@@ -1,6 +1,6 @@
 ﻿using System;
 using NBitcoin;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
+using Stratis.Bitcoin.Base.Deployments;
 using Stratis.Bitcoin.Utilities;
 
 namespace Stratis.Bitcoin.Features.Consensus

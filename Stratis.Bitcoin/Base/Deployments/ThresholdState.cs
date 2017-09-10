@@ -1,4 +1,4 @@
-﻿namespace Stratis.Bitcoin.Features.Consensus.Deployments
+﻿namespace Stratis.Bitcoin.Base.Deployments
 {
 	public enum ThresholdState
 	{

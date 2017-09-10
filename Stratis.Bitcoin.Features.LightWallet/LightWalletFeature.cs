@@ -5,10 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using NBitcoin;
 using NBitcoin.Protocol;
 using Stratis.Bitcoin;
+using Stratis.Bitcoin.Base.Deployments;
 using Stratis.Bitcoin.Builder;
 using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.Utilities;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
 using Stratis.Bitcoin.Features.Wallet;
 using Stratis.Bitcoin.Features.Wallet.Controllers;
 

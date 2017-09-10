@@ -27,8 +27,8 @@ using Stratis.Bitcoin.Base;
 using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.Features.Consensus;
 using Stratis.Bitcoin.Features.Consensus.CoinViews;
-using Stratis.Bitcoin.Features.Consensus.Deployments;
 using Microsoft.Extensions.Logging;
+using Stratis.Bitcoin.Base.Deployments;
 
 namespace Stratis.Bitcoin.IntegrationTests
 {

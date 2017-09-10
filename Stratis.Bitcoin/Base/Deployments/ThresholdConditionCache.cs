@@ -4,7 +4,7 @@ using System.Linq;
 using NBitcoin;
 using Stratis.Bitcoin.Utilities;
 
-namespace Stratis.Bitcoin.Features.Consensus.Deployments
+namespace Stratis.Bitcoin.Base.Deployments
 {
 	public class ThresholdConditionCache
 	{
